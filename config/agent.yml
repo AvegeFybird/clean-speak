@@ -1,0 +1,8 @@
+external_data_path: data/external/records.csv
+enable_conversation_context: true
+conversation_context_window: 5
+enable_session_facts: true
+max_session_facts: 12
+enable_candidate_facts: true
+enable_topic_shift_guard: true
+enable_resolved_query_log: true
