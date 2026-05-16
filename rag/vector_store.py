@@ -64,7 +64,7 @@ class VectorStoreService:
     # 基于RAG的搜索
     def similarity_search_enhanced(self, query: str,k: int | None = None) -> list[Document]:
         search_k = k or chroma_conf["k"]
-        if chroma_conf.get("enabled_query_rewrite", True):
+        if chroma_conf.get("enable_query_rewrite", True):
             rewrite = rewrite_query(query)
         else:
             # 没有重写就手动创建一个“假”的改写结果
@@ -85,7 +85,7 @@ class VectorStoreService:
             )
             docs = self._merge_documents(docs, rewritten_docs)
         
-        if chroma_conf.get("enabled_rerank", True):
+        if chroma_conf.get("enable_rerank", True):
             docs = rerank_documents_with_source_diversity(docs, rewrite, search_k)
         else:
             docs = docs[:search_k]
@@ -121,7 +121,7 @@ class VectorStoreService:
     # 根据配置文件，决定本次搜索是走“普通路线”还是“增强路线”
     def search(self, query: str, k: int | None = None) -> list[Document]:
         if chroma_conf.get("enable_query_rewrite", True) or chroma_conf.get("enable_rerank", True):
-            return self.similarity_search_with_enhanced(query, k)
+            return self.similarity_search_enhanced(query, k)
         return self.similarity_search_baseline(query, k)
 
 
@@ -188,7 +188,7 @@ class VectorStoreService:
                     logger.warning(f"[加载知识库]文件 {path} 没有有效文本内容,跳过")
                     continue
                 
-                split_documents: list[Document] = self.spilter.split_documents(documents)
+                split_documents: list[Document] = prepare_documents(documents)
 
                 if not split_documents: #没有内容
                     logger.warning(f"[加载知识库]文件 {path} 分片后没有有效文本内容,跳过")

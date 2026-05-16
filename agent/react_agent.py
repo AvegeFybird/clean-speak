@@ -149,7 +149,7 @@ class ReactAgent:
             context={"report": should_enable_report_mode},
         ):
             latest_message = chunk["messages"][-1]
-            if not self._is_final_assistant_message:
+            if not self._is_final_assistant_message(latest_message):
                 continue
 
             content = latest_message.content
@@ -169,7 +169,7 @@ class ReactAgent:
 
         runtime_state = get_runtime_state()
         if runtime_state["report_mode"] and runtime_state.get("last_external_data"):
-            self.last_report_context = dict(runtime_state["last_rag_sources"])
+            self.last_report_context = dict(runtime_state["last_external_data"])
         self.conversation_context.add_turn(
             raw_query=query,
             resolved_query=effective_query,
