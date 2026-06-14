@@ -34,6 +34,7 @@ class VectorStoreService:
         #如果旧的Chroma持久化数据和当前版本不兼容,直接重建
         if reset_db and os.path.exists(self.persist_directory):
             logger.warning(f"[向量库]检测到reset_db=True,删除旧持久化目录:{self.persist_directory}")
+            shutil.rmtree(self.persist_directory, ignore_errors=True)
 
         #确保持久化目录存在
         os.makedirs(self.persist_directory, exist_ok=True)
@@ -71,7 +72,7 @@ class VectorStoreService:
             rewrite = RewriteResult(
                 original_query=query.strip(),
                 rewritten_query=query.strip(),
-                expension_terms=[],
+                expansion_terms=[],
             )
         # 宁可多捞，不可错过
         candidate_k = chroma_conf.get("rerank_top_k", search_k * 3)
@@ -188,7 +189,7 @@ class VectorStoreService:
                     logger.warning(f"[加载知识库]文件 {path} 没有有效文本内容,跳过")
                     continue
                 
-                split_documents: list[Document] = prepare_documents(documents)
+                split_documents: list[Document] = prepare_documents(documents,self.spilter)
 
                 if not split_documents: #没有内容
                     logger.warning(f"[加载知识库]文件 {path} 分片后没有有效文本内容,跳过")
